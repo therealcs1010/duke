@@ -1,2 +1,5 @@
-list
-blah
+1 read book
+0 return book
+0 buy bread
+1 add money
+0 buy apples

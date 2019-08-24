@@ -1,32 +1,46 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
+import java.awt.*;
+import java.io.PrintStream;
 
 public class Duke {
 
-    private static ArrayList<String> messages = new ArrayList<String>();
+    private static ArrayList<Task> messages = new ArrayList<Task>();
     private static String formatLine = "    ____________________________________________________________";
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
         printWelcome(); //prints the welcome message
         readFiles(); //reads in previous file input
         Scanner s = new Scanner(System.in); //Scans in input from cmd line
         while (true) {
             String a = s.nextLine(); //reads in string if there is any
-            if (a.equals("bye"))
-            {
-                printGoodbye(); //prints the goodbye message
-                updateDatabase(); //updates the database of to-do list
-                return;
-            }
-            else {
-                System.out.println(formatLine + "\n\t" + a + "\n" + formatLine);
-                messages.add(a);
+            switch(a) {
+                case "bye" :
+                    printGoodbye(); //prints the goodbye message
+                    updateDatabase(); //updates the database of to-do list
+                    return;
+                case "list" :
+                    printList();
+                    break;
+                default :
+                    if (a.contains("done ")) {
+                        Integer val = Integer.parseInt(a.replaceAll("[\\D]", ""));
+                        val --;
+                        Task atHand = messages.get(val);
+                        atHand.setDone();
+                        messages.set(val, atHand);
+                        printMarkedAsDone(val);
+                    }
+                    else {
+                        System.out.println(formatLine + "\n\tadded: " + a + "\n" + formatLine);
+                        Task newTask = new Task(a);
+                        messages.add(newTask);
+                    }
             }
         }
 
     }
+
 
 
     /**
@@ -38,18 +52,30 @@ public class Duke {
         FileReader myTasks = new FileReader("src/duketask.txt");
         Scanner s = new Scanner(myTasks);
         while (s.hasNextLine()) {
+            int isDone = s.nextInt();
             String input = s.nextLine();
-            System.out.println("\tDuke read : " + input);
-            messages.add(input);
+            input = input.trim();
+            Task curr = new Task(input);
+            if (isDone == 1) {
+                curr.setDone();
+            }
+            messages.add(curr);
         }
         s.close();
     }
 
     private static void updateDatabase() {
         try (FileWriter out = new FileWriter("src/duketask.txt", false)) {
-            for (String i : messages) {
-                out.write(i);
+            for (Task i : messages) {
+                if (i.checkDone())
+                    out.write("1 ");
+                else
+                    out.write("0 ");
+
+                out.write(i.getDescription());
+
                 out.write("\n");
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -62,7 +88,7 @@ public class Duke {
      *
      * 1) Printing welcome message upon start of program
      * 2) Printing of goodbye message upon end of program
-     *
+     * 3) Prints the list of tasks
      */
     public static void printWelcome() {
         String logo = " ____        _        \n"
@@ -82,4 +108,22 @@ public class Duke {
                 "     Bye. Hope to see you again soon!\n" +
                 "    ____________________________________________________________");
     }
+
+    private static void printList() throws UnsupportedEncodingException {
+        int i = 1;
+        PrintStream out = new PrintStream(System.out, true, "UTF-8");
+        out.println(formatLine);
+        for (Task x : messages) {
+            out.println("\t" + i + ".[" + x.getStatusIcon() + "] " + x.getDescription());
+            i++;
+        }
+        System.out.println(formatLine);
+    }
+
+    private static void printMarkedAsDone(Integer val) throws UnsupportedEncodingException {
+        PrintStream out = new PrintStream(System.out, true, "UTF-8");
+    out.println(formatLine + "\n" +
+            "\tNice! I've marked this task as done: \n\t[" + messages.get(val).getStatusIcon() + "] " + messages.get(val).getDescription() + "\n" + formatLine);
+    }
+
 }
