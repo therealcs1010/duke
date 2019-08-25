@@ -1,47 +1,109 @@
+import Classes.Deadline;
+import Classes.Event;
+import Classes.Task;
+
 import java.io.*;
 import java.util.*;
-import java.awt.*;
 import java.io.PrintStream;
 
 public class Duke {
 
-    private static ArrayList<Task> messages = new ArrayList<Task>();
+    static ArrayList<Task> messages = new ArrayList<Task>();
     private static String formatLine = "    ____________________________________________________________";
 
+    /**
+     *
+     * @param args
+     * @throws FileNotFoundException
+     * @throws UnsupportedEncodingException
+     *
+     * This main method prints the welcome message, then reads in the input from the file to determine the previous inputs,
+     * The scanner class then reads in any input on the terminal before determining action.
+     * Upon receiving "goodbye", it will update the file before terminating the program.
+     *
+     *
+     */
     public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
         printWelcome(); //prints the welcome message
         readFiles(); //reads in previous file input
         Scanner s = new Scanner(System.in); //Scans in input from cmd line
         while (true) {
-            String a = s.nextLine(); //reads in string if there is any
-            switch(a) {
-                case "bye" :
-                    printGoodbye(); //prints the goodbye message
-                    updateDatabase(); //updates the database of to-do list
-                    return;
-                case "list" :
-                    printList();
-                    break;
-                default :
-                    if (a.contains("done ")) {
-                        Integer val = Integer.parseInt(a.replaceAll("[\\D]", ""));
-                        val --;
-                        Task atHand = messages.get(val);
-                        atHand.setDone();
-                        messages.set(val, atHand);
-                        printMarkedAsDone(val);
-                    }
-                    else {
-                        System.out.println(formatLine + "\n\tadded: " + a + "\n" + formatLine);
-                        Task newTask = new Task(a);
-                        messages.add(newTask);
-                    }
+            System.out.println(formatLine);
+            String action = s.next(); //reads in string if there is any
+            if (action.equals("bye")) {
+                updateDatabase();
+                printGoodbye();
+                s.close();
+                return;
             }
+            System.out.println(formatLine);
+            decideAction(action, s);
         }
 
     }
 
+    private static void decideAction(String a, Scanner s) throws UnsupportedEncodingException {
+        Actions currentAvailableActions = new Actions();
+        if (!currentAvailableActions.available.contains(a)) {
+            System.out.println("Unable to detect action"); //to fix the issue when this happens
+            if (s.hasNext()) {
+                s.nextLine();
+            }
+            return;
+        }
 
+        switch(a) {
+            case "list":
+                printList();
+                break;
+
+            case "done":
+                int val = s.nextInt();
+                val--;
+                Task atHand = messages.get(val);
+                atHand.setDone();
+                messages.set(val, atHand);
+                printMarkedAsDone(val);
+                break;
+
+            default:
+                createClass(s, a);
+                break;
+        }
+
+    }
+
+    private static void createClass(Scanner s, String a) throws UnsupportedEncodingException {
+        String item;
+        String [] arr;
+        switch(a) {
+                case "todo" :
+                    item = s.nextLine();
+                    item = item.strip();
+                    Task newTask = new Task(item, "T");
+                    messages.add(newTask);
+                    printAdded(newTask);
+                    break;
+
+                case "deadline" :
+                    item = s.nextLine();
+                    arr = item.split("/by ");
+                    arr[0] = arr[0].trim();
+                    Deadline newDeadline = new Deadline(arr[0], "D", arr[1]);
+                    messages.add(newDeadline);
+                    printAdded(newDeadline);
+                    break;
+
+                case "event" :
+                    item = s.nextLine();
+                    arr = item.split("/at ");
+                    arr[0] = arr[0].trim();
+                    Event newEvent = new Event(arr[0], "E", arr[1]);
+                    messages.add(newEvent);
+                    printAdded(newEvent);
+                    break;
+        }
+    }
 
     /**
      *
@@ -52,14 +114,30 @@ public class Duke {
         FileReader myTasks = new FileReader("src/duketask.txt");
         Scanner s = new Scanner(myTasks);
         while (s.hasNextLine()) {
-            int isDone = s.nextInt();
             String input = s.nextLine();
-            input = input.trim();
-            Task curr = new Task(input);
-            if (isDone == 1) {
-                curr.setDone();
+            String [] arr = input.split("/");
+            switch(arr[0]) {
+                case "T" :
+                    Task a = new Task(arr[2], "T");
+                    if (arr[1].equals("1")){
+                        a.setDone();
+                    }
+                    messages.add(a);
+                    break;
+                case "D" :
+                    Deadline b = new Deadline(arr[2], "D", arr[3]);
+                    if (arr[1].equals("1")) {
+                        b.setDone();
+                    }
+                    messages.add(b);
+                    break;
+                case "E" :
+                    Event c = new Event(arr[2], "E", arr[3]);
+                    if (arr[1].equals("1")) {
+                        c.setDone();
+                    }
+                    messages.add(c);
             }
-            messages.add(curr);
         }
         s.close();
     }
@@ -67,15 +145,35 @@ public class Duke {
     private static void updateDatabase() {
         try (FileWriter out = new FileWriter("src/duketask.txt", false)) {
             for (Task i : messages) {
+                switch (i.checkType()) {
+                    case "T" :
+                        out.write("T/");
+                        break;
+                    case "D" :
+                        out.write("D/");
+                        break;
+                    case "E" :
+                        out.write("E/");
+                        break;
+                } //Checks the type of task
+
                 if (i.checkDone())
-                    out.write("1 ");
+                    out.write("1/");
                 else
-                    out.write("0 ");
+                    out.write("0/");
 
                 out.write(i.getDescription());
 
-                out.write("\n");
+                if (i.checkType().equals("D")) {
+                    Deadline temp = (Deadline) i;
+                    out.write("/" + temp.doneBy());
+                }
+                else if (i.checkType().equals("E")) {
+                    Event temp = (Event) i;
+                    out.write("/" + temp.doneAt());
+                }
 
+                out.write("\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,8 +187,9 @@ public class Duke {
      * 1) Printing welcome message upon start of program
      * 2) Printing of goodbye message upon end of program
      * 3) Prints the list of tasks
+     *
      */
-    public static void printWelcome() {
+    private static void printWelcome() {
         String logo = " ____        _        \n"
                 + "|  _ \\ _   _| | _____ \n"
                 + "| | | | | | | |/ / _ \\\n"
@@ -99,8 +198,7 @@ public class Duke {
         System.out.println("Hello from\n" + logo + "\n\n");
         System.out.println("    ____________________________________________________________\n" +
                 "     Hello! I'm Duke\n" +
-                "     What can I do for you?\n" +
-                "    ____________________________________________________________");
+                "     What can I do for you?\n");
     }
 
     private static void printGoodbye() {
@@ -112,18 +210,22 @@ public class Duke {
     private static void printList() throws UnsupportedEncodingException {
         int i = 1;
         PrintStream out = new PrintStream(System.out, true, "UTF-8");
-        out.println(formatLine);
         for (Task x : messages) {
-            out.println("\t" + i + ".[" + x.getStatusIcon() + "] " + x.getDescription());
+            out.println("\t" + i + "." + x.toString());
             i++;
         }
-        System.out.println(formatLine);
     }
 
     private static void printMarkedAsDone(Integer val) throws UnsupportedEncodingException {
         PrintStream out = new PrintStream(System.out, true, "UTF-8");
-    out.println(formatLine + "\n" +
-            "\tNice! I've marked this task as done: \n\t[" + messages.get(val).getStatusIcon() + "] " + messages.get(val).getDescription() + "\n" + formatLine);
+        Task atHand = messages.get(val);
+        out.println("\tNice! I've marked this task as done: \n\t" + atHand.toString());
+    }
+    private static void printAdded(Task newTask) throws UnsupportedEncodingException {
+        PrintStream out = new PrintStream(System.out, true, "UTF-8");
+        out.print("\tGot it. I've added this task:\n\t" + newTask.toString());
+        out.println("\n"
+                + "\tNow you have " + messages.size() + " tasks in the list.");
     }
 
 }
