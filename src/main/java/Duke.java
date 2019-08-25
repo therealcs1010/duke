@@ -3,6 +3,7 @@ import Classes.Event;
 import Classes.Task;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.io.PrintStream;
 
@@ -38,20 +39,20 @@ public class Duke {
             }
             System.out.println(formatLine);
             decideAction(action, s);
+
         }
 
     }
 
     private static void decideAction(String a, Scanner s) throws UnsupportedEncodingException {
         Actions currentAvailableActions = new Actions();
+        PrintStream out = new PrintStream(System.out, false, StandardCharsets.UTF_8);
+
         if (!currentAvailableActions.available.contains(a)) {
-            System.out.println("Unable to detect action"); //to fix the issue when this happens
-            if (s.hasNext()) {
-                s.nextLine();
-            }
+            out.println("\tOOPS!!! I'm sorry, but I don't know what that means.");
+            s.nextLine();
             return;
         }
-
         switch(a) {
             case "list":
                 printList();
@@ -70,15 +71,19 @@ public class Duke {
                 createClass(s, a);
                 break;
         }
-
     }
 
     private static void createClass(Scanner s, String a) throws UnsupportedEncodingException {
+
         String item;
         String [] arr;
+        item = s.nextLine();
+        if (item.isBlank()) {
+            System.out.println("\tOOPS!!! The description cannot be empty.");
+            return;
+        }
         switch(a) {
                 case "todo" :
-                    item = s.nextLine();
                     item = item.strip();
                     Task newTask = new Task(item, "T");
                     messages.add(newTask);
@@ -86,21 +91,31 @@ public class Duke {
                     break;
 
                 case "deadline" :
-                    item = s.nextLine();
-                    arr = item.split("/by ");
-                    arr[0] = arr[0].trim();
-                    Deadline newDeadline = new Deadline(arr[0], "D", arr[1]);
-                    messages.add(newDeadline);
-                    printAdded(newDeadline);
+                    try {
+                        arr = item.split("/by ");
+                        arr[0] = arr[0].trim();
+                        Deadline newDeadline = new Deadline(arr[0], "D", arr[1]);
+                        messages.add(newDeadline);
+                        printAdded(newDeadline);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        System.out.println("\tOOPS!!! The format is unreadable.\n" +
+                                "\tPlease follow this format:\n" +
+                                "\tdeadline [Event] /by [Deadline]");
+                    }
                     break;
 
                 case "event" :
-                    item = s.nextLine();
-                    arr = item.split("/at ");
-                    arr[0] = arr[0].trim();
-                    Event newEvent = new Event(arr[0], "E", arr[1]);
-                    messages.add(newEvent);
-                    printAdded(newEvent);
+                    try {
+                        arr = item.split("/at ");
+                        arr[0] = arr[0].trim();
+                        Event newEvent = new Event(arr[0], "E", arr[1]);
+                        messages.add(newEvent);
+                        printAdded(newEvent);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        System.out.println("\tOOPS!!! The format is unreadable.\n" +
+                                "\tPlease follow this format:\n" +
+                                "\tevent [Event] /at [Time period]");
+                    }
                     break;
         }
     }
@@ -177,8 +192,14 @@ public class Duke {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("\tUnable to store events in database");
         }
     }
+
+
+
+
+
 
 
     /**
@@ -198,7 +219,7 @@ public class Duke {
         System.out.println("Hello from\n" + logo + "\n\n");
         System.out.println("    ____________________________________________________________\n" +
                 "     Hello! I'm Duke\n" +
-                "     What can I do for you?\n");
+                "     What can I do for you?");
     }
 
     private static void printGoodbye() {
