@@ -66,7 +66,23 @@ public class Duke {
                 messages.set(val, atHand);
                 printMarkedAsDone(val);
                 break;
+            case "find":
+                String item = s.next();
+                ArrayList<String> found = new ArrayList<String>();
+                for (Task i : messages) {
+                    String x = i.getDescription();
+                    if (x.contains(item)) {
+                        found.add(i.toString());
+                    }
+                }
 
+                out.println("\tHere are the matching tasks in your list.\n");
+                int start = 1;
+                for (String i : found) {
+                    out.println("\t" + start + "." + i);
+                    start ++;
+                }
+                break;
             default:
                 createClass(s, a);
                 break;
