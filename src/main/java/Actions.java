@@ -1,6 +1,15 @@
-import java.util.Arrays;
-import java.util.HashSet;
+public enum Actions {
 
-class Actions {
-    HashSet<String> available = new HashSet<String>(Arrays.asList("todo", "list", "event", "deadline", "bye", "done", "find"));
-}
+    LIST,
+
+    TODO,
+    EVENT,
+    DEADLINE,
+
+    DONE,
+    FIND,
+    DELETE,
+
+    BYE
+
+    }

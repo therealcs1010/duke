@@ -4,14 +4,14 @@ import Classes.Task;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Duke {
 
-    static ArrayList<Task> messages = new ArrayList<Task>();
-    private static String formatLine = "    ____________________________________________________________";
-
+    private static ArrayList<Task> messages = new ArrayList<Task>();
+    private static PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    private static Scanner s = new Scanner(System.in); //Scans in input from cmd line
     /**
      *
      * @param args
@@ -25,116 +25,142 @@ public class Duke {
      *
      */
     public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
-        printWelcome(); //prints the welcome message
+        new Printer(messages, "welcome"); //prints the welcome message
         readFiles(); //reads in previous file input
-        Scanner s = new Scanner(System.in); //Scans in input from cmd line
+
         while (true) {
+            String formatLine = "    ____________________________________________________________";
             System.out.println(formatLine);
             String action = s.next(); //reads in string if there is any
             if (action.equals("bye")) {
                 updateDatabase();
-                printGoodbye();
+                new Printer(messages, "bye");
                 s.close();
                 return;
             }
             System.out.println(formatLine);
-            decideAction(action, s);
+            decideAction(action);
 
         }
 
     }
 
-    private static void decideAction(String a, Scanner s) throws UnsupportedEncodingException {
-        Actions currentAvailableActions = new Actions();
-        PrintStream out = new PrintStream(System.out, false, StandardCharsets.UTF_8);
-
-        if (!currentAvailableActions.available.contains(a)) {
+    private static void decideAction(String a) throws UnsupportedEncodingException {
+        Actions currentAction;
+        try {
+            currentAction = Actions.valueOf(a.toUpperCase());
+        } catch (IllegalArgumentException e) {
             out.println("\tOOPS!!! I'm sorry, but I don't know what that means.");
             s.nextLine();
             return;
         }
-        switch(a) {
-            case "list":
-                printList();
+        switch(currentAction) {
+            case LIST:
+                new Printer(messages, "list");
+                break;
+            case TODO:
+                createTodo();
+                break;
+            case EVENT:
+                createEvent();
+                break;
+            case DEADLINE:
+                createDeadline();
+                break;
+            case DONE:
+                setItem();
+                break;
+            case FIND:
+                findItem();
+                break;
+            case DELETE:
+                deleteItem();
                 break;
 
-            case "done":
-                int val = s.nextInt();
-                val--;
-                Task atHand = messages.get(val);
-                atHand.setDone();
-                messages.set(val, atHand);
-                printMarkedAsDone(val);
-                break;
-            case "find":
-                String item = s.next();
-                ArrayList<String> found = new ArrayList<String>();
-                for (Task i : messages) {
-                    String x = i.getDescription();
-                    if (x.contains(item)) {
-                        found.add(i.toString());
-                    }
-                }
-
-                out.println("\tHere are the matching tasks in your list.\n");
-                int start = 1;
-                for (String i : found) {
-                    out.println("\t" + start + "." + i);
-                    start ++;
-                }
-                break;
-            default:
-                createClass(s, a);
-                break;
         }
     }
 
-    private static void createClass(Scanner s, String a) throws UnsupportedEncodingException {
-
+    private static void createDeadline() {
         String item;
         String [] arr;
         item = s.nextLine();
-        if (item.isBlank()) {
-            System.out.println("\tOOPS!!! The description cannot be empty.");
-            return;
+        try {
+            arr = item.split("/by ");
+            arr[0] = arr[0].trim();
+            Deadline newDeadline = new Deadline(arr[0], "D", arr[1]);
+            messages.add(newDeadline);
+            // printAdded(newDeadline);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("\tOOPS!!! The format is unreadable.\n" +
+                    "\tPlease follow this format:\n" +
+                    "\tdeadline [Event] /by [Deadline]");
         }
-        switch(a) {
-                case "todo" :
-                    item = item.strip();
-                    Task newTask = new Task(item, "T");
-                    messages.add(newTask);
-                    printAdded(newTask);
-                    break;
 
-                case "deadline" :
-                    try {
-                        arr = item.split("/by ");
-                        arr[0] = arr[0].trim();
-                        Deadline newDeadline = new Deadline(arr[0], "D", arr[1]);
-                        messages.add(newDeadline);
-                        printAdded(newDeadline);
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        System.out.println("\tOOPS!!! The format is unreadable.\n" +
-                                "\tPlease follow this format:\n" +
-                                "\tdeadline [Event] /by [Deadline]");
-                    }
-                    break;
+    }
 
-                case "event" :
-                    try {
-                        arr = item.split("/at ");
-                        arr[0] = arr[0].trim();
-                        Event newEvent = new Event(arr[0], "E", arr[1]);
-                        messages.add(newEvent);
-                        printAdded(newEvent);
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        System.out.println("\tOOPS!!! The format is unreadable.\n" +
-                                "\tPlease follow this format:\n" +
-                                "\tevent [Event] /at [Time period]");
-                    }
-                    break;
+    private static void createEvent() {
+        String item;
+        String [] arr;
+        item = s.nextLine();
+        try {
+            arr = item.split("/at ");
+            arr[0] = arr[0].trim();
+            Event newEvent = new Event(arr[0], "E", arr[1]);
+            messages.add(newEvent);
+            //  new Printer(out, messages, newEvent);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("\tOOPS!!! The format is unreadable.\n" +
+                    "\tPlease follow this format:\n" +
+                    "\tevent [Event] /at [Time period]");
+        }
+
+    }
+
+    private static void createTodo() {
+        String item;
+        String [] arr;
+        item = s.nextLine();
+        item = item.strip();
+        Task newTask = new Task(item, "T");
+        messages.add(newTask);
+        out.println("\tNew task added:\n\t" + newTask.toString());
+    }
+
+    private static void setItem() {
+        int val = s.nextInt();
+        val--;
+        Task atHand = messages.get(val);
+        atHand.setDone();
+        messages.set(val, atHand);
+        out.println("\tNoted. I've set task as done:\n\t" + atHand.toString());
+    }
+
+    private static void deleteItem() {
+        int val = s.nextInt();
+        val --;
+        Task x = messages.get(val);
+        messages.remove(val);
+        out.println("\tNoted. I've removed this task:\n\t" + x.toString() + "\n\tNow you have " + messages.size() + " tasks in your list");
+    }
+
+    private static void findItem() {
+        String item = s.next();
+        ArrayList<String> found = new ArrayList<String>();
+        for (Task i : messages) {
+            String x = i.getDescription();
+            if (x.contains(item)) {
+                found.add(i.toString());
+            }
+        }
+
+        out.println("\tHere are the matching tasks in your list.\n");
+        int start = 1;
+        for (String i : found) {
+            out.println("\t" + start + "." + i);
+            start ++;
         }
     }
+
 
     /**
      *
@@ -212,57 +238,5 @@ public class Duke {
         }
     }
 
-
-
-
-
-
-
-    /**
-     * Unimportant functions that are only for UX purposes.
-     *
-     * 1) Printing welcome message upon start of program
-     * 2) Printing of goodbye message upon end of program
-     * 3) Prints the list of tasks
-     *
-     */
-    private static void printWelcome() {
-        String logo = " ____        _        \n"
-                + "|  _ \\ _   _| | _____ \n"
-                + "| | | | | | | |/ / _ \\\n"
-                + "| |_| | |_| |   <  __/\n"
-                + "|____/ \\__,_|_|\\_\\___|\n";
-        System.out.println("Hello from\n" + logo + "\n\n");
-        System.out.println("    ____________________________________________________________\n" +
-                "     Hello! I'm Duke\n" +
-                "     What can I do for you?");
-    }
-
-    private static void printGoodbye() {
-        System.out.println("    ____________________________________________________________\n" +
-                "     Bye. Hope to see you again soon!\n" +
-                "    ____________________________________________________________");
-    }
-
-    private static void printList() throws UnsupportedEncodingException {
-        int i = 1;
-        PrintStream out = new PrintStream(System.out, true, "UTF-8");
-        for (Task x : messages) {
-            out.println("\t" + i + "." + x.toString());
-            i++;
-        }
-    }
-
-    private static void printMarkedAsDone(Integer val) throws UnsupportedEncodingException {
-        PrintStream out = new PrintStream(System.out, true, "UTF-8");
-        Task atHand = messages.get(val);
-        out.println("\tNice! I've marked this task as done: \n\t" + atHand.toString());
-    }
-    private static void printAdded(Task newTask) throws UnsupportedEncodingException {
-        PrintStream out = new PrintStream(System.out, true, "UTF-8");
-        out.print("\tGot it. I've added this task:\n\t" + newTask.toString());
-        out.println("\n"
-                + "\tNow you have " + messages.size() + " tasks in the list.");
-    }
 
 }
