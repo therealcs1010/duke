@@ -1,6 +1,10 @@
 import Classes.Deadline;
 import Classes.Event;
 import Classes.Task;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -9,8 +13,30 @@ import java.util.Scanner;
 
 public class Duke {
 
+
+//    @Override
+//    public void start(Stage stage) {
+//        Label helloWorld = new Label("Hello World!");// Creating a new Label control
+//        helloWorld.accessibleTextProperty
+//        Scene scene = new Scene(helloWorld); // Setting the scene to be our Label
+//        Scene scene2 = new Scene(new Label("WOWOWOWO"));
+//        stage.setScene(scene); // Setting the stage to show our screen
+//        stage.show();// Render the stage.
+//        stage.setScene(scene2);
+//        stage.show();
+//    }
+
     private static ArrayList<Task> messages = new ArrayList<Task>();
-    private static PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    private static PrintStream out;
+
+    static {
+        try {
+            out = new PrintStream(System.out, true, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static Scanner s = new Scanner(System.in); //Scans in input from cmd line
     /**
      *
@@ -120,7 +146,7 @@ public class Duke {
         String item;
         String [] arr;
         item = s.nextLine();
-        item = item.strip();
+        item = item.trim();
         Task newTask = new Task(item, "T");
         messages.add(newTask);
         out.println("\tNew task added:\n\t" + newTask.toString());
