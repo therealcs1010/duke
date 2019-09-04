@@ -10,6 +10,7 @@ public enum Actions {
     FIND,
     DELETE,
 
-    BYE
+    BYE,
 
+    ERROR
     }
