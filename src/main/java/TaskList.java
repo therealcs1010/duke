@@ -45,7 +45,14 @@ public class TaskList extends ArrayList<Task> {
                 break;
             case ERROR:
                 break;
+            case BYE:
+                printBye();
+                break;
         }
+    }
+
+    private void printBye() {
+        io.println("\tBye. Duke has terminated.");
     }
 
     private void print() {

@@ -1,0 +1,9 @@
+
+	What would you like to do?
+	1.[T][✓] read book
+	2.[D][✘] return book (by: monday)
+	3.[D][✘] Do Homework (by: Tuesday)
+	4.[E][✘] Orbital (at: 3rd August)
+
+	What would you like to do?
+	Which item no. do you want to delete? : 

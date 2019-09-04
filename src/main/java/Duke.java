@@ -42,13 +42,12 @@ public class Duke {
             ui.promptAction();
             action = ui.retrieveData();
             tasks.start(action);
-
         } while (action != Actions.BYE);
         storage.updateDatabase(tasks);
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        new Duke("src/duketask.txt").run();
+        new Duke("D:\\Work\\NUS\\CS2113T\\duketask.txt").run();
         }
 
 }
