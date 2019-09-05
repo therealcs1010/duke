@@ -46,8 +46,13 @@ public class Duke {
         storage.updateDatabase(tasks);
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
-        new Duke("D:\\Work\\NUS\\CS2113T\\duketask.txt").run();
+    public static void main(String[] args) throws IOException {
+        String filename = "duketask.txt";
+        String workingDir = System.getProperty("user.dir");
+        String abs = workingDir + File.separator + filename;
+        File file = new File(abs);
+        file.createNewFile();
+        new Duke(abs).run();
         }
 
 }
