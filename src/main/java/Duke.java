@@ -9,17 +9,6 @@ import javafx.stage.Stage;
 import java.io.*;
 
 public class Duke {
-//    @Override
-//    public void start(Stage stage) {
-//        Label helloWorld = new Label("Hello World!");// Creating a new Label control
-//        helloWorld.accessibleTextProperty
-//        Scene scene = new Scene(helloWorld); // Setting the scene to be our Label
-//        Scene scene2 = new Scene(new Label("WOWOWOWO"));
-//        stage.setScene(scene); // Setting the stage to show our screen
-//        stage.show();// Render the stage.
-//        stage.setScene(scene2);
-//        stage.show();
-//    }
     private Storage storage;
     private TaskList tasks;
     private Ui ui;
