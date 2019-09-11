@@ -3,6 +3,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+/**
+ * This class handles the IO related to duke. It utilises the buffered reader to read in input, and uses an
+ * outputstreamwriter to handle UTF-8 characters, in the case of the tick and crosses.
+ */
 class Parser extends PrintWriter {
     private Scanner s = new Scanner(System.in);
 
@@ -12,9 +16,6 @@ class Parser extends PrintWriter {
         r = new BufferedReader(new InputStreamReader(i));
     }
 
-    public boolean hasMoreTokens() {
-        return peekToken() != null;
-    }
 
     public int getInt() {
         return Integer.parseInt(nextToken());

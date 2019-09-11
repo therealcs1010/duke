@@ -8,11 +8,23 @@ import javafx.stage.Stage;
 
 import java.io.*;
 
+/**
+ * This is the main code which will make use of the different classes to work together. It reads in duketastk.txt from the user
+ * directory before running it in duke. Duke then processes input accordingly until "bye" is read. It then prints out "Bye" before
+ * terminating.
+ */
 public class Duke {
     private Storage storage;
     private TaskList tasks;
     private Ui ui;
 
+    /**
+     *
+     * @param filePath filepath is the file location where duketask.txt is located
+     * @throws FileNotFoundException in the event that the file isnt found
+     *  This function mainly just sets up the different parts of duke that enable it to work together.
+     *
+     */
     private Duke(String filePath) throws FileNotFoundException {
         ui = new Ui();
         storage = new Storage(filePath);
@@ -25,6 +37,11 @@ public class Duke {
         }
     }
 
+    /**
+     * This takes in an action, then proceeds to pick an action according to the input. This action gets passed into task
+     * where something will be done, e.g creating a todo task.
+     *
+     */
     private void run() {
         Actions action;
         do {

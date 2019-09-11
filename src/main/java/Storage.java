@@ -9,10 +9,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * This class handles the storing function, mainly in the beginning and at the end of the function. At the beginning, the
+ * text file is processed and converted to an arraylist. This arraylist then gets passed to the main duke class. At the end,
+ * an arraylist is read and stored as input in the text file.
+ */
 public class Storage {
     private static ArrayList<Task> messages = new ArrayList<Task>();
     private String filepath;
 
+    /**
+     *
+     * @param filepath This is the path of the duketask txt file.
+     * @throws FileNotFoundException This is in the event where the file is not found and has been deleted.
+     * This initialises the filepath as a string, before reading in details such as the tasklist.
+     *
+     */
     Storage(String filepath) throws FileNotFoundException {
         this.filepath = filepath;
         FileReader myTasks = new FileReader(filepath);
@@ -46,6 +58,11 @@ public class Storage {
         s.close();
     }
 
+    /**
+     *
+     * @param tasks this is an arraylist consisting of the current values of the user.
+     *              This function updates the txt file to be the most current up-to-date arraylist.
+     */
     public void updateDatabase(ArrayList<Task> tasks)
     {
         try (FileWriter out = new FileWriter(filepath, false)) {
