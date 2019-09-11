@@ -1,9 +1,15 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import Classes.Deadline;
+import Classes.Event;
+import Classes.Task;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+
+import java.io.*;
 
 public class DukeTest {
-//    @Override
+    //    @Override
 //    public void start(Stage stage) {
 //        Label helloWorld = new Label("Hello World!");// Creating a new Label control
 //        helloWorld.accessibleTextProperty
@@ -14,29 +20,29 @@ public class DukeTest {
 //        stage.setScene(scene2);
 //        stage.show();
 //    }
-    private StorageTest storage;
-    private TaskListTest tasks;
-    private UiTest ui;
+    private Storage storage;
+    private TaskList tasks;
+    private Ui ui;
 
     private DukeTest(String filePath) throws FileNotFoundException {
-        ui = new UiTest();
-        storage = new StorageTest(filePath);
+        ui = new Ui();
+        storage = new Storage(filePath);
         try {
-            tasks = new TaskListTest(storage.load());
+            tasks = new TaskList(storage.load());
             //ui.showLoaded();
         } catch (Exception e) {
             ui.showLoadingError();
-            tasks = new TaskListTest();
+            tasks = new TaskList();
         }
     }
 
     private void run() {
-        ActionsTest action;
+        Actions action;
         do {
             ui.promptAction();
             action = ui.retrieveData();
             tasks.start(action);
-        } while (action != ActionsTest.BYE);
+        } while (action != Actions.BYE);
         storage.updateDatabase(tasks);
     }
 
@@ -47,6 +53,6 @@ public class DukeTest {
         File file = new File(abs);
         file.createNewFile();
         new DukeTest(abs).run();
-        }
+    }
 
 }
