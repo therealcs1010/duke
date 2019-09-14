@@ -1,11 +1,3 @@
-import Classes.Deadline;
-import Classes.Event;
-import Classes.Task;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.stage.Stage;
-
 import java.io.*;
 
 /**
@@ -30,9 +22,9 @@ public class Duke {
         parse = new Parser();
         parse.printLine();
         parse.printHello();
+
         try {
             tasks = new TaskList(storage.load());
-
         } catch (Exception e) {
             ui.io.showLoadingError();
             tasks = new TaskList();
@@ -48,7 +40,7 @@ public class Duke {
             String fullCommand = ui.returnActivity();
             String result = tasks.start(action, fullCommand);
             parse.printLine();
-            ui.printResult(result);
+            parse.printResult(result);
         } while (action != Actions.BYE);
         storage.updateDatabase(tasks);
         parse.close();

@@ -29,8 +29,4 @@ public class Ui {
         return this.activity;
     }
 
-
-    public void printResult(String result) {
-        io.printResult(result);
-    }
 }

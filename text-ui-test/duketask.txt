@@ -1,0 +1,3 @@
+T/0/buy fish
+D/1/do homework /Fri
+E/0/gradparty/Monday

@@ -1,4 +1,7 @@
 list
-delete
-4
+todo buy fish
+deadline do homework /by Fri
+event gradparty /at Monday
+list
+done 2
 bye

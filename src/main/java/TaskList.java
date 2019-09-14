@@ -120,7 +120,7 @@ public class TaskList extends ArrayList<Task> {
         String result ="\tHere are the matching tasks in your list.\n";
         int start = 1;
         for (String i : found) {
-            result += "\t" + start + "." + i;
+            result += "\t" + start + "." + i + "\n";
             start ++;
         }
         return result;
