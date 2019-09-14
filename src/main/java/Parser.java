@@ -1,60 +1,59 @@
-import java.io.*;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-import java.util.StringTokenizer;
 
 /**
  * This class handles the IO related to duke. It utilises the buffered reader to read in input, and uses an
- * outputstreamwriter to handle UTF-8 characters, in the case of the tick and crosses.
+ * printwriter to handle UTF-8 characters, in the case of the tick and crosses.
  */
 class Parser extends PrintWriter {
     private Scanner s = new Scanner(System.in);
 
-    public Parser(InputStream i) {
-        super(new OutputStreamWriter(
-                System.out, StandardCharsets.UTF_8), true);
-        r = new BufferedReader(new InputStreamReader(i));
+    Parser() {
+        super(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true);
     }
 
-
-    public int getInt() {
-        return Integer.parseInt(nextToken());
+    int getInt() {
+        int val = s.nextInt();
+        s.nextLine();
+        return val;
+    }
+    String getLine() {
+        String val = s.nextLine();
+        return val;
+    }
+    String getWord() {
+        String val = s.next();
+        s.nextLine();
+        return val;
     }
 
-    public double getDouble() {
-        return Double.parseDouble(nextToken());
+    void closeParser() {
+        s.close();
     }
 
-    public String getWord() {
-        return nextToken();
+    void printHello() {
+        super.println("     Hello! I'm Duke\n" +
+                "     What can I do for you?");
+    }
+    void printLine() {
+        super.println("    ____________________________________________________________");
     }
 
-    public String getLine() {
-        return this.s.nextLine();
+    public void showLoadingError() {
+        super.println("\tNew List will be created");
     }
 
-    private BufferedReader r;
-    private String line;
-    private StringTokenizer st;
-    private String token;
-
-    private String peekToken() {
-        if (token == null)
-            try {
-                while (st == null || !st.hasMoreTokens()) {
-                    line = r.readLine();
-                    if (line == null) return null;
-                    st = new StringTokenizer(line);
-                }
-                token = st.nextToken();
-            } catch (IOException e) { }
-        return token;
+    public void showLoaded() {
+        super.println("\tList created");
     }
 
-    private String nextToken() {
-        String ans = peekToken();
-        token = null;
-        return ans;
+    public void promptAction() {
+        super.println("\tWhat would you like to do?");
     }
 
+    public void printResult(String result) {
+        super.println(result);
+    }
 }

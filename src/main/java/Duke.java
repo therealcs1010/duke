@@ -17,48 +17,48 @@ public class Duke {
     private Storage storage;
     private TaskList tasks;
     private Ui ui;
-
+    private Parser parse;
     /**
-     *
+     * Sets up the different Objects required to run duke.
      * @param filePath filepath is the file location where duketask.txt is located
      * @throws FileNotFoundException in the event that the file isnt found
-     *  This function mainly just sets up the different parts of duke that enable it to work together.
      *
      */
     private Duke(String filePath) throws FileNotFoundException {
         ui = new Ui();
         storage = new Storage(filePath);
+        parse = new Parser();
+        parse.printLine();
+        parse.printHello();
         try {
             tasks = new TaskList(storage.load());
-            //ui.showLoaded();
+
         } catch (Exception e) {
-            ui.showLoadingError();
+            ui.io.showLoadingError();
             tasks = new TaskList();
         }
     }
 
-    /**
-     * This takes in an action, then proceeds to pick an action according to the input. This action gets passed into task
-     * where something will be done, e.g creating a todo task.
-     *
-     */
     private void run() {
         Actions action;
         do {
-            ui.promptAction();
-            action = ui.retrieveData();
-            tasks.start(action);
+            parse.printLine();
+            ui.retrieveData();
+            action = ui.returnAction();
+            String fullCommand = ui.returnActivity();
+            String result = tasks.start(action, fullCommand);
+            parse.printLine();
+            ui.printResult(result);
         } while (action != Actions.BYE);
         storage.updateDatabase(tasks);
+        parse.close();
     }
 
     public static void main(String[] args) throws IOException {
-        String filename = "duketask.txt";
-        String workingDir = System.getProperty("user.dir");
-        String abs = workingDir + File.separator + filename;
-        File file = new File(abs);
+        String workingDir = System.getProperty("user.dir") + File.separator + "duketask.txt";
+        File file = new File(workingDir);
         file.createNewFile();
-        new Duke(abs).run();
+        new Duke(workingDir).run();
         }
 
 }

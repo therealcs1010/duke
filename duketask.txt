@@ -1,3 +1,2 @@
-T/1/read book
-D/0/return book/monday
-D/0/Do Homework/Tuesday
+D/1/Do Homework/Tuesday
+E/0/library/Thursday

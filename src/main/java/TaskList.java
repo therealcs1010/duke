@@ -6,11 +6,7 @@ import java.util.ArrayList;
 
 public class TaskList extends ArrayList<Task> {
 
-    private static Parser io;
-
-    static {
-        io = new Parser(System.in);
-    }
+    String activity;
 
     TaskList(ArrayList<Task> list) {
         super.addAll(list);
@@ -20,136 +16,114 @@ public class TaskList extends ArrayList<Task> {
         super(new ArrayList<Task>());
     }
 
-    public void start(Actions currentAction) {
+    public String start(Actions currentAction, String activity) {
+        this.activity = activity;
         switch(currentAction) {
             case LIST:
-                print();
-                break;
+                return print();
             case TODO:
-                createTodo();
-                break;
+                return createTodo();
             case EVENT:
-                createEvent();
-                break;
+                return createEvent();
             case DEADLINE:
-                createDeadline();
-                break;
+                return createDeadline();
             case DONE:
-                setItem();
-                break;
+                return setItem();
             case FIND:
-                findItem();
-                break;
+                return findItem();
             case DELETE:
-                deleteItem();
-                break;
-            case ERROR:
-                break;
+                return deleteItem();
             case BYE:
-                printBye();
-                break;
+                return printBye();
+            default:
+                return "";
         }
     }
 
-    private void printBye() {
-        io.println("\tBye. Duke has terminated.");
+    private String printBye() {
+        return "     Bye. Hope to see you again soon!";
     }
 
-    private void print() {
+    private String print() {
         int i = 1;
+        String toReturn = "";
         for (Task x : super.subList(0,super.size())) {
-            io.println("\t" + i + "." + x.toString());
+            toReturn += "\t" + i + "." + x.toString() + "\n";
             i++;
         }
+        return toReturn;
     }
 
-    private void createDeadline() {
-        io.println("\tCreating Deadline...\n\tPlease enter activity to be done followed by /by .");
-        String item;
-        String [] arr;
-        item = io.getLine();
+    private String createDeadline() {
         try {
-            arr = item.split("/by ");
-            arr[0] = arr[0].trim();
+            String[] arr = activity.split("/by ");
             Deadline newDeadline = new Deadline(arr[0], "D", arr[1]);
             super.add(newDeadline);
-            io.println("\tNew task added:\n\t" + newDeadline.toString());
+            return "\tNew task added:\n\t" + newDeadline.toString();
         } catch (ArrayIndexOutOfBoundsException e) {
-            io.println("\tOOPS!!! The format is unreadable.\n" +
+            return "\tOOPS!!! The format is unreadable.\n" +
                     "\tPlease follow this format:\n" +
-                    "\tdeadline [Event] /by [Deadline]");
+                    "\tdeadline [Event] /by [Deadline]";
         }
 
     }
 
-    private void createEvent() {
-        io.println("\tCreating Event...\n\tPlease enter activity to be done followed by /at .");
-        String item;
-        String [] arr;
-        item = io.getLine();
+    private String createEvent() {
         try {
-            arr = item.split("/at ");
+            String[] arr = activity.split("/at ");
             arr[0] = arr[0].trim();
             Event newEvent = new Event(arr[0], "E", arr[1]);
             super.add(newEvent);
-            io.println("\tNew task added:\n\t" + newEvent.toString());
+            return "\tNew task added:\n\t" + newEvent.toString();
         } catch (ArrayIndexOutOfBoundsException e) {
-            io.println("\tOOPS!!! The format is unreadable.\n" +
+            return "\tOOPS!!! The format is unreadable.\n" +
                     "\tPlease follow this format:\n" +
-                    "\tevent [Event] /at [Time period]");
+                    "\tevent [Event] /at [Time period]";
         }
 
     }
 
-    private void createTodo() {
-        io.println("\tCreating to do...\n\tPlease enter activity to be done.");
-        String item;
-        String [] arr;
-        item = io.getLine();
-        item = item.trim();
-        Task newTask = new Task(item, "T");
+    private String createTodo() {
+        Task newTask = new Task(activity, "T");
         super.add(newTask);
-        io.println("\tNew task added:\n\t" + newTask.toString());
+        return "\tNew task added:\n\t" + newTask.toString();
     }
 
 
-    private void setItem() {
-        io.println("\tWhich item no. do you want to set as done? : ");
-        int val = io.getInt();
-        val--;
+    private String setItem() {
+        int val = Integer.parseInt(activity);
+        val --;
         Task atHand = super.get(val);
         atHand.setDone();
         super.set(val, atHand);
-        io.println("\tNoted. I've set task as done:\n\t" + atHand.toString());
+        return "\tNoted. I've set task as done:\n\t" + atHand.toString() ;
     }
 
-    private void deleteItem() {
-        io.println("\tWhich item no. do you want to delete? : ");
-        int val = io.getInt();
+    private String deleteItem() {
+        int val = Integer.parseInt(activity);
         val --;
         Task x = super.get(val);
         super.remove(val);
-        io.println("\tNoted. I've removed this task:\n\t" + x.toString() + "\n\tNow you have " + super.size() + " tasks in your list");
+        return "\tNoted. I've removed this task:\n\t" + x.toString() + "\n\tNow you have " + super.size() + " tasks in your list";
     }
 
-    private void findItem() {
-        io.println("\tWhat word are you specifically looking for : ");
-        String item = io.getWord();
+    private String findItem() {
         ArrayList<String> found = new ArrayList<String>();
         for (int x = 0; x < super.size(); x++) {
             Task i = super.get(x);
             String y = i.getDescription();
-            if (y.contains(item)) {
+            if (y.contains(activity)) {
                 found.add(i.toString());
             }
         }
 
-        io.println("\tHere are the matching tasks in your list.\n");
+        String result ="\tHere are the matching tasks in your list.\n";
         int start = 1;
         for (String i : found) {
-            io.println("\t" + start + "." + i);
+            result += "\t" + start + "." + i;
             start ++;
         }
+        return result;
     }
 
 

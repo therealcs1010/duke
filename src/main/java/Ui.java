@@ -1,41 +1,36 @@
 public class Ui {
-
-    private Parser io;
-
+    protected Parser io;
     private Actions currentAction;
+    private String activity;
 
     Ui() {
-        io = new Parser(System.in);
+        io = new Parser();
     }
 
-
-
-    public Actions retrieveData() {
-        String a = io.getLine();
-        a = a.split(" ")[0];
+    public void retrieveData() {
+        String input = io.getLine();
+        String[] arr = input.split(" ", 2);
         try {
-            currentAction = Actions.valueOf(a.toUpperCase());
+            currentAction = Actions.valueOf(arr[0].toUpperCase());
         } catch (IllegalArgumentException e) {
             io.println("\tOOPS!!! I'm sorry, but I don't know what that means.");
-            io.getLine();
         }
-        return currentAction;
-
+        try {
+            activity = arr[1];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            activity = "";
+        }
 
     }
-
-    public void showLoadingError() {
-        io.println("\tNew List will be created");
-//        io.flush();
+    public Actions returnAction() {
+        return this.currentAction;
+    }
+    public String returnActivity() {
+        return this.activity;
     }
 
-    public void showLoaded() {
-        io.println("\tList created");
-//        io.flush();
-    }
 
-    public void promptAction() {
-        io.println("\n\tWhat would you like to do?");
-//        io.flush();
+    public void printResult(String result) {
+        io.printResult(result);
     }
 }
